@@ -12,6 +12,8 @@ pip install validators
 
 ## How to use HXXPXXH (also in README.md)
 
+hxxp.py and pxxh.py are located in the directory scraper.
+
 HXXP is executed as follows:
 
 ```
