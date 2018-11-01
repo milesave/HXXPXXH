@@ -2,14 +2,17 @@
 Author: Miles Avelli
 Last Updated: 10/31/2018
 """
-import datetime
 import argparse
-import sqlite3
+import datetime
 import re
 import requests
-# used pip install validators
-import validators
+import sqlite3
+
+#use pip install beautifulsoup4
 from bs4 import BeautifulSoup
+#use pip install validators
+import validators
+
 
 """
 Here is a list of accepted header ids, this can be expanded to
@@ -29,23 +32,23 @@ accepted_headers = ['date',
                     'misc']
 
 def scrape(db,url):
-    print("== Start Scraping ==")
+    print('== Start Scraping ==')
 
     #open/create the database
-    print("Open/creating " + str(db))
+    print('Open/creating ' + str(db))
     try:
         conn = sqlite3.connect(db)
     except:
         raise Exception('Could not create database')
-    print("Database open")
+    print('Database open')
     c = conn.cursor()
 
     #issue HTTP request
-    print("Issuing HTTP request to " + str(url))
+    print('Issuing HTTP request to ' + str(url))
     response = requests.get(url)
     response.raise_for_status()
-    print("Received valid HTTP response")
-    print("Stripping Headers")
+    print('Received valid HTTP response')
+    print('Stripping Headers')
     header_response = response.headers
     #make all the headers lowercase for easy access in dicitonaries
     header_response = {k.lower():v for k,v in header_response.items()}
@@ -54,17 +57,22 @@ def scrape(db,url):
     global accepted_headers
 
     #create new dictionary for storing extracted headers
-    headers_data = dict.fromkeys(accepted_headers,"")
+    headers_data = dict.fromkeys(accepted_headers,'')
 
     #iterate over recieved headers, store in dictionary where applicable
     for h in header_response:
         if h in headers_data:
             headers_data[h] = header_response[h]
         else:
-            headers_data['misc'] += str("{" + h + " : " + header_response[h] + "}, ")
+            headers_data['misc'] += str('{' + h + ' : ' + header_response[h] + '}, ')
 
     headers_data =list(headers_data.values())
-    print("Parsing HTML document")
+    # get today's date
+    date = datetime.datetime.today().strftime('%Y%m%d')
+
+    headers_data.insert(0,date)
+
+    print('Parsing HTML document')
     #create a BeautifulSoup object for parsing the html response
     soup = BeautifulSoup(response.content, 'html.parser')
 
@@ -73,9 +81,6 @@ def scrape(db,url):
 
     #get body tag
     body = soup.find('body')
-
-    # get today's date
-    date = datetime.datetime.today().strftime('%Y%m%d')
 
     #convert to strings for database insertion
     head = str(head)
@@ -86,23 +91,23 @@ def scrape(db,url):
 
     #try to create the database tables, if already created, pass
     try:
-        c.execute("CREATE TABLE heads(date text, cachecontrol text, contenttype text, contentencoding text, transferencoding text, connection text, misc text)")
+        c.execute("CREATE TABLE heads(datekey text, date text, cachecontrol text, contenttype text, contentencoding text, transferencoding text, connection text, misc text)")
         c.execute("CREATE TABLE htmldata(date text, url text, head text, body text)")
     except:
         pass
     #push values into database
-    print("Pushing headers to " + str(db))
-    c.execute("INSERT INTO heads VALUES(?,?,?,?,?,?,?)",headers_data)
-    print("Pushing HTML data to " + str(db))
+    print('Pushing headers to ' + str(db))
+    c.execute("INSERT INTO heads VALUES(?,?,?,?,?,?,?,?)",headers_data)
+    print('Pushing HTML data to ' + str(db))
     c.execute("INSERT INTO htmldata VALUES(?,?,?,?)", html_data)
 
     #commit changes and close connection
-    print("Committing changes")
+    print('Committing changes')
     conn.commit()
-    print("Closing connection")
+    print('Closing connection')
     conn.close()
-    print("Push complete")
-    print("== Scraping complete ==")
+    print('Push complete')
+    print('== Scraping complete ==')
     return
 
 def main():
