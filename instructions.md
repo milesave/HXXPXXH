@@ -1,10 +1,11 @@
 ## Instructions
+Download files from github, https://github.com/milesave/HXXPXXH.git
 
 ## Python Version 
 3.6 or newer
 
 ## Modules
-Install these modules, required for hxxp.py and pxxh.py to function as expected.
+Install these modules, required for hxxp.py and pxxh.py to function as expected
 
 pip install beautifulsoup4
 
@@ -12,7 +13,7 @@ pip install validators
 
 ## How to use HXXPXXH (also in README.md)
 
-hxxp.py and pxxh.py are located in the directory scraper.
+hxxp.py and pxxh.py are located in the directory scraper
 
 HXXP is executed as follows:
 
